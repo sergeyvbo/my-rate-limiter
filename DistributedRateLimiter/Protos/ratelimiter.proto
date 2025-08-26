@@ -1,0 +1,17 @@
+syntax = "proto3";
+package ratelimiter;
+
+service RateLimiter {
+  rpc Check (RateLimitRequest) returns (RateLimitResponse);
+}
+
+message RateLimitRequest {
+  string resource_id = 1; // e.g., "user_id:12345" or "ip:192.168.1.1"
+  // ... другие параметры
+}
+
+message RateLimitResponse {
+  bool is_allowed = 1;
+  int32 tokens_left = 2;
+  int32 retry_after_seconds = 3;
+}
