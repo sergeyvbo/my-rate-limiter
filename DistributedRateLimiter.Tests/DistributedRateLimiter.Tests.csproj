@@ -36,4 +36,8 @@
     </Protobuf>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Strategies\" />
+  </ItemGroup>
+
 </Project>

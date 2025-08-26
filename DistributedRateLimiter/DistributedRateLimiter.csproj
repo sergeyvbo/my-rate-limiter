@@ -22,4 +22,8 @@
     <Protobuf Include="Protos\ratelimiter.proto" GrpcServices="Server" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Strategies\" />
+  </ItemGroup>
+
 </Project>

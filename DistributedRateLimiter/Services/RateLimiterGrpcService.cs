@@ -1,4 +1,3 @@
-using DistributedRateLimiter.Models;
 using Grpc.Core;
 using Ratelimiter;
 
