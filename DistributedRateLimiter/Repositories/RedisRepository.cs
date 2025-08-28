@@ -34,9 +34,9 @@ public class RedisRepository
             -- Нам нужно найти 'tokens' и 'last_refill_timestamp'
             for i = 1, #bucket, 2 do
                 if bucket[i] == 'tokens' then
-                tokens = tonumber(bucket[i+1])
+                    tokens = tonumber(bucket[i+1])
                 elseif bucket[i] == 'last_refill_timestamp' then
-                last_refill_timestamp = tonumber(bucket[i+1])
+                    last_refill_timestamp = tonumber(bucket[i+1])
                 end
             end
         end

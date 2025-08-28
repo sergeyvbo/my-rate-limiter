@@ -1,3 +1,4 @@
+using DistributedRateLimiter.Configuration;
 using DistributedRateLimiter.Repositories;
 using DistributedRateLimiter.Services;
 using StackExchange.Redis;
@@ -17,6 +18,9 @@ public class Program
 
         builder.Services.AddScoped<RedisRepository>();
         builder.Services.AddScoped<RateLimiterService>();
+
+        var rateLimiterSettings = builder.Configuration.GetSection("RateLimiterSettings");
+        builder.Services.Configure<RateLimiterSettings>(rateLimiterSettings);
 
         var app = builder.Build();
 

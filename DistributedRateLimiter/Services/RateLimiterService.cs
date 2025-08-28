@@ -1,20 +1,22 @@
-﻿using DistributedRateLimiter.Repositories;
+﻿using DistributedRateLimiter.Configuration;
+using DistributedRateLimiter.Repositories;
+using Microsoft.Extensions.Options;
 
 namespace DistributedRateLimiter.Services;
 
 public class RateLimiterService
 {
     private readonly RedisRepository _redisRepository;
-    private readonly int _capacity = 100; // Временно, потом перенесем в конфиг
-    private readonly int _refillRate = 10; // Временно, потом перенесем в конфиг
+    private readonly RateLimitPolicySettings _defaultPolicy;
 
-    public RateLimiterService(RedisRepository redisRepository)
+    public RateLimiterService(RedisRepository redisRepository, IOptions<RateLimiterSettings> options)
     {
         _redisRepository = redisRepository;
+        _defaultPolicy = options.Value.DefaultPolicy;
     }
 
     public Task<(bool isAllowed, int tokensLeft)> IsRequestAllowedAsync(string resourceId)
     {
-        return _redisRepository.ApplyTokenBucketLogic(resourceId, _capacity, _refillRate);
+        return _redisRepository.ApplyTokenBucketLogic(resourceId, _defaultPolicy.Capacity, _defaultPolicy.RefillRatePerSecond);
     }
 }
