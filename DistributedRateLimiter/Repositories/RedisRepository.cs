@@ -13,25 +13,21 @@ public class RedisRepository
         _db = db;
     }
 
-    public async Task<(bool isAllowed, int tokensLeft)> ExecuteScriptAsync(
+    public async Task<RedisResult[]> ExecuteScriptAsync(
         string script,
         string resourceId, 
-        int capacity, 
-        int refillRatePerSecond)
+        params object[] args)
     {
-        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        var requestedTokens = 1;
         var key = $"ratelimit:{resourceId}";
+        RedisKey[] redisKeys = [key];
+        RedisValue[] redisValues = args.Select(a =>(RedisValue)a.ToString()).ToArray();
 
         var result = (RedisResult[])await _db.ScriptEvaluateAsync(
             script,
-            [key],
-            [capacity, refillRatePerSecond, now, requestedTokens]);
+            redisKeys,
+            redisValues);
 
-        var isAllowed = (bool)result[0];
-        var tokensLeft = (int)result[1];
-
-        return (isAllowed, tokensLeft);
+        return (result);
 
     }
 }

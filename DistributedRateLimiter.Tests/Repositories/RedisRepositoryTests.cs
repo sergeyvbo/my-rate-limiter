@@ -6,43 +6,38 @@ namespace DistributedRateLimiter.Tests.Repositories;
 public class RedisRateLimiterRepositoryTests
 {
     private readonly IDatabase _redisDb;
-    private const string ConnectionString = "localhost:6379"; // Убедитесь, что Redis запущен
+    private readonly RedisRepository _repository;
+    private const string ConnectionString = "localhost:6379";
 
     public RedisRateLimiterRepositoryTests()
     {
         var redis = ConnectionMultiplexer.Connect(ConnectionString);
         _redisDb = redis.GetDatabase();
+        _repository = new RedisRepository(_redisDb);
     }
 
     [Fact]
-    public async Task ApplyTokenBucketLogic_ShouldCorrectlyDecrementTokens_AndReturnState()
+    public async Task ExecuteScriptAsync_ShouldCorrectlyRunLuaScript_AndReturnParsedResult()
     {
         // Arrange
-        var repository = new RedisRepository(_redisDb);
-        var resourceId = $"user:{Guid.NewGuid()}"; // Уникальный ключ для каждого теста
-        var capacity = 10;
-        var refillRatePerSecond = 1;
+        // Простой скрипт, который складывает два числа и возвращает результат.
+        // Он проверяет, что мы правильно передаем аргументы и парсим ответ.
+        const string testScript = @"
+            local val1 = tonumber(ARGV[1])
+            local val2 = tonumber(ARGV[2])
+            return { val1, val2, val1 + val2 }";
 
-        // Act: Первый вызов для нового пользователя
-        var (isAllowed1, tokensLeft1) = await repository.ApplyTokenBucketLogic(
-            resourceId, capacity, refillRatePerSecond);
+        var resourceId = "test:key";
+        var val1 = 10;
+        var val2 = 20;
 
-        // Assert: Проверяем, что первый запрос успешен
-        Assert.True(isAllowed1);
-        Assert.Equal(9, tokensLeft1);
+        // Act
+        var result = await _repository.ExecuteScriptAsync(testScript, resourceId, val1, val2);
 
-        // Act: Истощаем все оставшиеся токены
-        for (int i = 0; i < 9; i++)
-        {
-            await repository.ApplyTokenBucketLogic(resourceId, capacity, refillRatePerSecond);
-        }
-
-        // Act: Последний запрос, который должен быть отклонен
-        var (isAllowed2, tokensLeft2) = await repository.ApplyTokenBucketLogic(
-            resourceId, capacity, refillRatePerSecond);
-
-        // Assert: Проверяем, что запрос отклонен, когда токены закончились
-        Assert.False(isAllowed2);
-        Assert.Equal(0, tokensLeft2);
+        // Assert
+        // Проверяем, что скрипт вернул массив из 3-х элементов
+        Assert.Equal(3, result.Length);
+        // Проверяем, что результат сложения верный
+        Assert.Equal(val1 + val2, (int)result[2]);
     }
 }

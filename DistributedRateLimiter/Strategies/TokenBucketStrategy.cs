@@ -75,12 +75,22 @@ public class TokenBucketStrategy : IRateLimitingStrategy
         _redisRepository = redisRepository;
     }
 
-    public Task<(bool isAllowed, int tokensLeft)> IsRequestAllowedAsync(string resourceId, RateLimitPolicySettings policy)
+    public async Task<(bool isAllowed, int tokensLeft)> IsRequestAllowedAsync(string resourceId, RateLimitPolicySettings policy)
     {
-        return _redisRepository.ExecuteScriptAsync(
+        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var requestedTokens = 1;
+
+        var result = await _redisRepository.ExecuteScriptAsync(
             TokenBucketLuaScript,
             resourceId,
             policy.Capacity,
-            policy.RefillRatePerSecond);
+            policy.RefillRatePerSecond,
+            now,
+            requestedTokens);
+
+        var isAllowed = (bool)result[0];
+        var tokensLeft = (int)result[1];
+
+        return (isAllowed, tokensLeft);
     }
 }

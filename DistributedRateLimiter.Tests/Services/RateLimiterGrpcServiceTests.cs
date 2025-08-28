@@ -1,32 +1,29 @@
 using Grpc.Net.Client;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Ratelimiter;
 
-// Определяем наш gRPC клиент, сгенерированный из .proto файла
 using RateLimiterClient = Ratelimiter.RateLimiter.RateLimiterClient;
 
 namespace DistributedRateLimiter.Tests.Services;
 
 public class RateLimiterGrpcServiceTests
-    : IClassFixture<WebApplicationFactory<Program>> // Используем WebApplicationFactory для запуска сервиса в памяти
+    : IClassFixture<TestWebApplicationFactory>
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly GrpcChannel _channel;
 
-    public RateLimiterGrpcServiceTests(WebApplicationFactory<Program> factory)
+    public RateLimiterGrpcServiceTests(TestWebApplicationFactory factory)
     {
-        _factory = factory;
+        var client = factory.CreateClient();
+        _channel = GrpcChannel.ForAddress(client.BaseAddress, new GrpcChannelOptions
+        {
+            HttpClient = client,
+        });
     }
 
     [Fact]
     public async Task Check_ShouldReturnIsAllowedTrue_ForFirstRequest()
     {
         // Arrange
-        var client = _factory.CreateClient();
-        var grpcChannel = GrpcChannel.ForAddress(client.BaseAddress, new GrpcChannelOptions
-        {
-            HttpClient = client
-        });
-        var grpcClient = new RateLimiterClient(grpcChannel);
+        var grpcClient = new RateLimiterClient(_channel);
         var resourceId = $"user:{Guid.NewGuid()}";
 
         // Act
@@ -35,5 +32,27 @@ public class RateLimiterGrpcServiceTests
         // Assert
         Assert.True(response.IsAllowed);
         Assert.True(response.TokensLeft > 0);
+    }
+
+    [Fact]
+    public async Task Check_ShouldReturnIsAllowedFalse_WhenTokensAreExhausted()
+    {
+        // Arrange
+        var grpcClient = new RateLimiterClient(_channel);
+        var resourceId = $"user:e2e_{Guid.NewGuid()}";
+
+        // Act
+        var depletionTasks = new List<Task>();
+        for (int i = 0; i < 100; i++)
+        {
+            depletionTasks.Add(grpcClient.CheckAsync(new RateLimitRequest { ResourceId = resourceId }).ResponseAsync);
+        }
+
+        await Task.WhenAll(depletionTasks);
+
+        var finalResponse = await grpcClient.CheckAsync(new RateLimitRequest { ResourceId = resourceId });
+
+        // Assert
+        Assert.False(finalResponse.IsAllowed);
     }
 }
