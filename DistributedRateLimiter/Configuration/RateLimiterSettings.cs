@@ -7,6 +7,7 @@ public class RateLimiterSettings
 
 public class RateLimitPolicySettings
 {
+    public string Redis { get; set; }
     public int Capacity { get; set; }
     public int RefillRatePerSecond { get; set; }
 }

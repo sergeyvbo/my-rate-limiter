@@ -43,7 +43,7 @@ public class RateLimiterGrpcServiceTests
 
         // Act
         var depletionTasks = new List<Task>();
-        for (int i = 0; i < 100; i++)
+        for (int i = 0; i < 111; i++)
         {
             depletionTasks.Add(grpcClient.CheckAsync(new RateLimitRequest { ResourceId = resourceId }).ResponseAsync);
         }

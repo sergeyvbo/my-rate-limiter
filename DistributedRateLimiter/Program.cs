@@ -12,8 +12,9 @@ public class Program
 
         builder.Services.AddGrpc();
 
+        var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
         builder.Services.AddSingleton<IConnectionMultiplexer>(
-            ConnectionMultiplexer.Connect("localhost:6379"));
+            ConnectionMultiplexer.Connect(redisConnectionString));
 
         builder.Services.AddScoped(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
 
