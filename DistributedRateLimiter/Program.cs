@@ -1,6 +1,7 @@
 using DistributedRateLimiter.Configuration;
 using DistributedRateLimiter.Repositories;
 using DistributedRateLimiter.Services;
+using DistributedRateLimiter.Strategies;
 using StackExchange.Redis;
 
 public class Program
@@ -17,6 +18,7 @@ public class Program
         builder.Services.AddScoped(sp => sp.GetRequiredService<IConnectionMultiplexer>().GetDatabase());
 
         builder.Services.AddScoped<RedisRepository>();
+        builder.Services.AddScoped<IRateLimitingStrategy, TokenBucketStrategy>();
         builder.Services.AddScoped<RateLimiterService>();
 
         var rateLimiterSettings = builder.Configuration.GetSection("RateLimiterSettings");
