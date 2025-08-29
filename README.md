@@ -1,6 +1,6 @@
 # Distributed gRPC Rate Limiter
 
-This project is a case study of a distributed rate limiter for LLD and HLD system interview prep.
+This project is a case study of a distributed rate limiter for LLD and HLD system interview prep. It was created using an LLM as a guide and author of test (for TDD approach).
 
 ## Key Features
 
