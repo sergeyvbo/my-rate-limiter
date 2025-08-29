@@ -216,6 +216,31 @@ The `ghz` tool is used for load testing.
     ```
     This command will send 20,000 requests with a concurrency of 100.
 
+Here is my load testing result:
+```
+Response time histogram:
+  1.734  [4]     |
+  9.282  [3917]  |∎∎∎∎∎∎∎∎∎∎∎∎
+  16.830 [13200] |∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎∎
+  24.378 [2239]  |∎∎∎∎∎∎∎
+  31.926 [435]   |∎
+  39.474 [76]    |
+  47.022 [26]    |
+  54.570 [3]     |
+  62.118 [13]    |
+  69.666 [60]    |
+  77.214 [27]    |
+
+Latency distribution:
+  10 % in 7.91 ms
+  25 % in 9.83 ms
+  50 % in 12.27 ms
+  75 % in 14.90 ms
+  90 % in 18.36 ms
+  95 % in 21.54 ms
+  99 % in 32.25 ms
+```
+
 ## Monitoring
 
 During the load test, you can observe the system's state in real-time.
