@@ -1,6 +1,6 @@
 # Distributed gRPC Rate Limiter
 
-This project is a high-performance, distributed rate limiting service built with gRPC. It serves as a comprehensive demonstration of modern backend system design practices, including microservice architecture, atomic database operations, containerization, and observability.
+This project is a case study of a distributed rate limiter for LLD and HLD system interview prep.
 
 ## Key Features
 
@@ -55,8 +55,8 @@ The system consists of the main service, a Redis database for state storage, and
 
 1.  **Clone the repository:**
     ```bash
-    git clone <your-repo-url>
-    cd <your-repo-folder>
+    git clone https://github.com/sergeyvbo/my-rate-limiter.git
+    cd my-rate-limiter
     ```
 
 2.  **Run the entire stack using Docker Compose:**
